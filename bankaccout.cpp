@@ -30,12 +30,18 @@ public:
     void modify();
     void check_pass();
     void generate_report();
-
+    void transfer(bank*start);
+    void add_money(float amt){
+        balance+=amt;
+    }
     void set_next(bank* ptr){
         next=ptr;
     }
     int get_accno(){
         return account_no;
+    }
+    char* get_name(){
+        return name;
     }
     int get_pass(){
         return password;
@@ -46,6 +52,9 @@ public:
 };
 
 
+
+bank* isaccount(bank* start,int tempacc,int temppass);
+bank* isaccount(bank* start,int tempacc);
 
 
 void bank::create_acc(){
@@ -102,13 +111,15 @@ void bank::display_acc()
 
 void bank::withdraw()
 {
-    float amount;
+    float amount=0.0;
 
 
     cout << "Enter How much money "
          << "you want to withdraw: "
-         << amount << endl;
-
+         << endl;
+    cout << "Available balance: "
+         << balance;
+    cin>>amount;
     balance -= amount;
     cout << "Available balance: "
          << balance;
@@ -126,6 +137,38 @@ void bank::modify()
     generate_report();
     display_acc();
 
+    cin.get();
+}
+
+
+void bank::transfer(bank* start){
+    int accno;
+    bank* ptr;
+    cout<<"Enter the account number to transfer money";
+    cin>>accno;
+    if(accno==account_no){
+        cout<<"Cannot Transfer money to same account\n";
+        
+        return;
+    }
+    if(ptr=isaccount(start,accno)){
+        float tempamt=0;
+        cout<<"Enter the amount of money you want to transfer to "<<ptr->get_name();
+        cin>>tempamt;
+        if(tempamt>balance){
+            cout<<"Not enough Balance\n";
+            
+            return;
+        }
+        balance-=tempamt;
+        ptr->add_money(tempamt);
+        system("CLS");
+        cout<<"Transfer Completed\n";
+        cout<<"Your Balance "<<balance;
+        
+        return;
+    }
+    cout<<"Account Does not exists";
     cin.get();
 }
 
@@ -167,6 +210,18 @@ bank* isaccount(bank* start,int tempacc,int temppass){
     return NULL;
 }
 
+bank* isaccount(bank* start,int tempacc){
+    bank*ptr=start;
+    while(ptr!=NULL){
+        if(ptr->get_accno()==tempacc){
+            return ptr;
+        }
+        ptr=ptr->get_next();
+    }
+    return NULL;
+}
+
+
 
 void login(bank* start){
     int tempaccnum,temppass;
@@ -180,8 +235,8 @@ void login(bank* start){
         system("CLS");
         cout<<"LOG IN SUCCESS!\n";
         int m=0;
-        while(m<4){
-            cout<<"Enter 1 to Deposit\nEnter 2 to Withdraw\nEnter 3 to Modify account details\nEnter 4 to logout ";
+        while(m<5){
+            cout<<"Enter 1 to Deposit\nEnter 2 to Withdraw\nEnter 3 to Transfer\nEnter 4 to Modify account details\nEnter 5 to logout ";
             cin>>m;
             system("CLS");
             switch(m){
@@ -192,6 +247,9 @@ void login(bank* start){
                     ptr->withdraw();
                     break;
                 case 3:
+                    ptr->transfer(start);
+                    break;
+                case 4:
                     ptr->modify();
                     break;
             }
@@ -225,21 +283,7 @@ int main()
     int m=0;
     while(m<3){
         system("CLS");
-        std::cout << R"(
-         _._._                       _._._
-        _|   |_                     _|   |_
-        | ... |_._._._._._._._._._._| ... |
-        | ||| |  o OMCAB BANK o  | ||| |
-        | """ |  """    """    """  | """ |
-   ())  |[-|-]| [-|-]  [-|-]  [-|-] |[-|-]|  ())
-  (())) |     |---------------------|     | (()))
- (())())| """ |  """    """    """  | """ |(())())
- (()))()|[-|-]|  :::   .-"-.   :::  |[-|-]|(()))()
- ()))(()|     | |~|~|  |_|_|  |~|~| |     |()))(()
-    ||  |_____|_|_|_|__|_|_|__|_|_|_|_____|  ||
- ~ ~^^ @@@@@@@@@@@@@@/=======\@@@@@@@@@@@@@@ ^^~ ~
-      ^~^~                                ~^~^
-)" << '\n';
+        
 
 
 
